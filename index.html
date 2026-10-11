@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Canteen</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand">🍽️ Smart Canteen</div>
+    <div id="userBox" class="user-box hidden">
+      <span id="userName"></span>
+      <span id="userRole" class="pill"></span>
+      <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+    </div>
+  </header>
+
+  <!-- AUTH -->
+  <section id="authView" class="view auth-view">
+    <div class="card auth-card">
+      <div class="tabs">
+        <button class="tab active" data-auth="login">Sign In</button>
+        <button class="tab" data-auth="signup">Sign Up</button>
+      </div>
+      <form id="authForm">
+        <div id="nameField" class="field hidden">
+          <label>Name</label>
+          <input id="authName" type="text" placeholder="Your name" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input id="authEmail" type="email" placeholder="you@example.com" required />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="authPass" type="password" placeholder="••••••" required />
+        </div>
+        <div class="field">
+          <label>I am a</label>
+          <div class="role-pick">
+            <label><input type="radio" name="role" value="customer" checked /> Customer</label>
+            <label><input type="radio" name="role" value="manager" /> Canteen Manager</label>
+          </div>
+        </div>
+        <p id="authError" class="error"></p>
+        <button type="submit" id="authSubmit" class="btn btn-primary full">Sign In</button>
+      </form>
+      <div class="demo">
+        <p>Quick demo login</p>
+        <button class="btn btn-ghost" data-demo="customer">Customer demo</button>
+        <button class="btn btn-ghost" data-demo="manager">Manager demo</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOMER -->
+  <section id="customerView" class="view hidden">
+    <div class="tabs page-tabs">
+      <button class="tab active" data-ctab="menu">Menu</button>
+      <button class="tab" data-ctab="orders">My Orders</button>
+    </div>
+
+    <div id="cMenu" class="layout">
+      <div>
+        <div class="toolbar">
+          <input id="search" type="text" placeholder="Search food..." />
+          <div id="catFilters" class="chips"></div>
+        </div>
+        <div id="menuGrid" class="grid"></div>
+      </div>
+      <aside class="card cart">
+        <h3>Your Cart</h3>
+        <div id="cartItems"></div>
+        <div class="cart-total"><span>Total</span><strong id="cartTotal">₹0</strong></div>
+        <div class="field">
+          <label>Payment</label>
+          <div class="role-pick">
+            <label><input type="radio" name="pay" value="Cash" checked /> Cash at counter</label>
+            <label><input type="radio" name="pay" value="UPI" /> UPI</label>
+          </div>
+        </div>
+        <button id="placeOrder" class="btn btn-primary full" disabled>Place Order</button>
+      </aside>
+    </div>
+
+    <div id="cOrders" class="hidden">
+      <div id="myOrders" class="orders-list"></div>
+    </div>
+  </section>
+
+  <!-- MANAGER -->
+  <section id="managerView" class="view hidden">
+    <div class="kpis">
+      <div class="card kpi"><span>Today's Orders</span><strong id="kOrders">0</strong></div>
+      <div class="card kpi"><span>Revenue (paid)</span><strong id="kRevenue">₹0</strong></div>
+      <div class="card kpi"><span>Pending</span><strong id="kPending">0</strong></div>
+      <div class="card kpi"><span>Ready</span><strong id="kReady">0</strong></div>
+    </div>
+
+    <div class="tabs page-tabs">
+      <button class="tab active" data-mtab="board">Orders Board</button>
+      <button class="tab" data-mtab="menu">Menu Management</button>
+    </div>
+
+    <div id="mBoard" class="board"></div>
+
+    <div id="mMenu" class="hidden">
+      <form id="itemForm" class="card item-form">
+        <input id="itemId" type="hidden" />
+        <input id="itemName" type="text" placeholder="Item name" required />
+        <input id="itemPrice" type="number" min="1" placeholder="Price ₹" required />
+        <input id="itemCat" type="text" placeholder="Category" required />
+        <button class="btn btn-primary" id="itemSave">Add Item</button>
+        <button type="button" class="btn btn-ghost hidden" id="itemCancel">Cancel</button>
+      </form>
+      <div id="menuTable" class="menu-table"></div>
+    </div>
+  </section>
+
+  <!-- TOKEN MODAL -->
+  <div id="tokenModal" class="modal hidden">
+    <div class="card modal-box">
+      <p>Order placed!</p>
+      <div class="token">Token #<span id="tokenNo"></span></div>
+      <p id="tokenInfo" class="muted"></p>
+      <button id="closeModal" class="btn btn-primary full">Done</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
