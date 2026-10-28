@@ -33,10 +33,10 @@
           <input id="authEmail" type="email" placeholder="you@example.com" required />
         </div>
         <div class="field">
-          <label>Password</label>
+          <label id="passLabel">Password</label>
           <input id="authPass" type="password" placeholder="••••••" required />
         </div>
-        <div class="field">
+        <div id="roleField" class="field">
           <label>I am a</label>
           <div class="role-pick">
             <label><input type="radio" name="role" value="customer" checked /> Customer</label>
@@ -46,11 +46,6 @@
         <p id="authError" class="error"></p>
         <button type="submit" id="authSubmit" class="btn btn-primary full">Sign In</button>
       </form>
-      <div class="demo">
-        <p>Quick demo login</p>
-        <button class="btn btn-ghost" data-demo="customer">Customer demo</button>
-        <button class="btn btn-ghost" data-demo="manager">Manager demo</button>
-      </div>
     </div>
   </section>
 
