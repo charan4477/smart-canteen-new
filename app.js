@@ -64,24 +64,30 @@ function esc(text) {
 // ---------- API ----------
 // One function for every request. Adds the manager key when a manager is signed in.
 async function api(method, path, body) {
-  const headers = { "Content-Type": "application/json" };
-  if (session()?.role === "manager") headers["x-manager-key"] = managerKey();
+  const headers = {
+    "Content-Type": "application/json"
+  };
+
+  // Cognito bearer-token authentication will be added
+  // for protected manager routes.
 
   const response = await fetch(API_BASE + path, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined
+    body: body !== undefined ? JSON.stringify(body) : undefined
   });
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    // Details go to the console for us; the user gets a friendly message
     console.error(method, path, response.status, data);
-    const error = new Error(data.message || "Something went wrong.");
+    const error = new Error(
+      data.message || `Request failed (${response.status})`
+    );
     error.status = response.status;
     throw error;
   }
+
   return data;
 }
 
@@ -283,14 +289,34 @@ async function placeOrder() {
   if (!user || Object.keys(cart).length === 0) return;
 
   const button = $("placeOrder");
-  const payment = document.querySelector('input[name="pay"]:checked').value;
+  const payment =
+    document.querySelector('input[name="pay"]:checked').value;
 
-  // Send only item ids and quantities. Prices, total and token come from the server.
+  const items = Object.entries(cart).map(([id, qty]) => {
+    const item = menu.find(m => String(m.id) === String(id));
+
+    if (!item) {
+      throw new Error("A selected menu item is no longer available.");
+    }
+
+    return {
+      name: item.name,
+      quantity: qty,
+      price: Number(item.price)
+    };
+  });
+
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
   const body = {
     customer: user.email,
     customerName: user.name,
     payment,
-    items: Object.entries(cart).map(([id, qty]) => ({ id: Number(id), qty }))
+    items,
+    total
   };
 
   button.disabled = true;
@@ -300,19 +326,27 @@ async function placeOrder() {
     const order = await api("POST", "/orders", body);
 
     cart = {};
-    $("tokenNo").textContent = order.token;
-    $("tokenInfo").textContent = payment === "UPI"
-      ? "UPI is a demo option; no real payment was taken. Pay at the counter."
-      : `Pay ${rupee(order.total)} at the counter.`;
+
+    // The backend may return an orderId rather than a token.
+    $("tokenNo").textContent =
+      order.token || order.orderId?.slice(0, 8) || "Confirmed";
+
+    $("tokenInfo").textContent =
+      `Order status: ${order.status || "PLACED"}. ` +
+      `Total: ${rupee(order.total ?? total)}. ` +
+      (payment === "UPI"
+        ? "Demo UPI selected; no real payment was processed."
+        : "Pay at the counter.");
+
     $("tokenModal").classList.remove("hidden");
 
     await refresh();
   } catch (error) {
-    alert("Sorry, your order could not be placed. " + error.message);
-    refresh(); // the menu may have changed (e.g. item sold out)
+    console.error("Order placement failed:", error);
+    alert("Could not place order: " + error.message);
   } finally {
     button.textContent = "Place Order";
-    button.disabled = Object.keys(cart).length === 0;
+    renderCart();
   }
 }
 
